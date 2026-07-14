@@ -573,7 +573,7 @@ export default function BB84Game() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", width: "100%", display: "flex", justifyContent: "center", background: C.bg, overscrollBehavior: "none" }}>
+    <div style={{ minHeight: "100vh", width: "100%", display: "flex", justifyContent: "center", background: `radial-gradient(circle at 50% 0%, #131A38 0%, ${C.bg} 70%)`, overscrollBehavior: "none" }}>
       <style>{`
         @keyframes travel {
           0% { top: 0%; opacity: 0; }
@@ -606,7 +606,7 @@ export default function BB84Game() {
           display: "flex",
           flexDirection: "column",
           position: "relative",
-          background: `radial-gradient(circle at 50% 0%, #131A38 0%, ${C.bg} 70%)`,
+          background: "transparent",
           fontFamily: "Inter, sans-serif",
           color: C.white,
         }}
