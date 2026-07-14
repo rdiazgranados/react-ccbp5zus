@@ -28,6 +28,19 @@ const C = {
   eveDark: "#7A2323",
 };
 
+// A small fixed set of sizes used everywhere, so nothing drifts screen to screen.
+const ICON_TINY = "clamp(14px, 3vw, 18px)"; // inline status icons (check/x/help) sitting next to small text
+const ICON_XS = "clamp(16px, 3.6vw, 22px)"; // only for the dense 10-col sifting grid (3 stacked icons per column)
+const ICON_SM = "clamp(22px, 5vw, 30px)"; // history rows / mini indicators
+const ICON_MD = "clamp(30px, 6.5vw, 42px)"; // in-context glyphs (compare & sifting rows)
+const ICON_LG = "clamp(46px, 11vw, 68px)"; // interactive picker buttons, flash overlays, key icon
+
+const FS_XS = "clamp(13px, 1.8vw, 16px)"; // captions / small labels
+const FS_SM = "clamp(15px, 2vw, 18px)"; // body copy
+const FS_MD = "clamp(18px, 2.6vw, 23px)"; // sub-headings, bit history digits
+const FS_LG = "clamp(26px, 4.2vw, 36px)"; // section headings ("Let's compare", "Eavesdropper detected")
+const FS_XL = "clamp(30px, 5.2vw, 44px)"; // hero title / final key display
+
 const POL = [
   { id: "H", basis: "+", bit: 0, angle: 0, color: C.rect },
   { id: "V", basis: "+", bit: 1, angle: 90, color: C.rect },
@@ -49,7 +62,7 @@ const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
 /* ---------- glyphs ---------- */
 function ArrowGlyph({ angle, color, size = 46 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 46 46">
+    <svg style={{ width: size, height: size, flexShrink: 0 }} viewBox="0 0 46 46">
       <g transform={`rotate(${angle} 23 23)`}>
         <line x1="23" y1="8" x2="23" y2="38" stroke={color} strokeWidth="3.5" strokeLinecap="round"
           style={{ filter: `drop-shadow(0 0 5px ${color}aa)` }} />
@@ -64,7 +77,7 @@ function BasisGlyph({ basis, size = 46, active = false }) {
   const color = basis === "+" ? C.rect : C.diag;
   const lines = basis === "+" ? [0, 90] : [45, 135];
   return (
-    <svg width={size} height={size} viewBox="0 0 46 46">
+    <svg style={{ width: size, height: size, flexShrink: 0 }} viewBox="0 0 46 46">
       <circle cx="23" cy="23" r="20" fill={active ? `${color}22` : "none"} stroke={color} strokeWidth={active ? 2.5 : 1.5} opacity={active ? 1 : 0.6} />
       {lines.map((a) => (
         <g key={a} transform={`rotate(${a} 23 23)`}>
@@ -121,7 +134,7 @@ function Beam({ pulse, color = C.key, reverse = false }) {
 /* ---------- shared bits ---------- */
 function Caption({ children, color = C.white80 }) {
   return (
-    <div style={{ textAlign: "center", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.15em", color }}>
+    <div style={{ textAlign: "center", fontSize: FS_XS, textTransform: "uppercase", letterSpacing: "0.15em", color }}>
       {children}
     </div>
   );
@@ -138,10 +151,10 @@ function Btn({ children, onClick, bg, border, color = C.white, ghost = false }) 
         justifyContent: "center",
         gap: 8,
         margin: ghost ? "0 auto" : undefined,
-        padding: ghost ? "10px 20px" : "13px 34px",
+        padding: ghost ? "clamp(9px, 1.5vh, 12px) clamp(16px, 3vw, 24px)" : "clamp(12px, 1.8vh, 16px) clamp(26px, 5vw, 42px)",
         borderRadius: 999,
         fontWeight: 600,
-        fontSize: ghost ? 14 : 16,
+        fontSize: ghost ? "clamp(13px, 1.5vw, 15px)" : "clamp(15px, 1.8vw, 18px)",
         color,
         background: bg || "transparent",
         border: `1px solid ${border || "transparent"}`,
@@ -155,9 +168,9 @@ function Btn({ children, onClick, bg, border, color = C.white, ghost = false }) 
 function Handoff({ who, accent, btnBg, onReady }) {
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24, padding: "0 32px", textAlign: "center" }}>
-      <Users size={40} color={accent} />
+      <Users size={ICON_LG} color={accent} />
       <Caption>Hand to</Caption>
-      <div style={{ fontSize: 30, fontWeight: 700, color: accent, fontFamily: "Space Grotesk, sans-serif" }}>{who}</div>
+      <div style={{ fontSize: FS_XL, fontWeight: 700, color: accent, fontFamily: "Space Grotesk, sans-serif" }}>{who}</div>
       <Btn onClick={onReady} bg={btnBg} border={accent}>Ready</Btn>
     </div>
   );
@@ -289,16 +302,16 @@ export default function BB84Game() {
 
   if (phase === "welcome") {
     content = (
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 32, padding: "0 32px", textAlign: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <ArrowGlyph angle={0} color={C.rect} />
-          <ArrowGlyph angle={90} color={C.rect} />
-          <ArrowGlyph angle={45} color={C.diag} />
-          <ArrowGlyph angle={135} color={C.diag} />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "clamp(24px, 5vh, 40px)", padding: "0 32px", textAlign: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "clamp(10px, 2vw, 20px)" }}>
+          <ArrowGlyph angle={0} color={C.rect} size={ICON_LG} />
+          <ArrowGlyph angle={90} color={C.rect} size={ICON_LG} />
+          <ArrowGlyph angle={45} color={C.diag} size={ICON_LG} />
+          <ArrowGlyph angle={135} color={C.diag} size={ICON_LG} />
         </div>
         <div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: C.white, fontFamily: "Space Grotesk, sans-serif" }}>BB84</div>
-          <div style={{ fontSize: 12, color: C.white80, marginTop: 4 }}>Alice sends. Bob measures blind.<br />Compare bases. Share a key.</div>
+          <div style={{ fontSize: FS_XL, fontWeight: 700, color: C.white, fontFamily: "Space Grotesk, sans-serif" }}>BB84</div>
+          <div style={{ fontSize: FS_SM, color: C.white80, marginTop: 4 }}>Alice sends. Bob measures blind.<br />Compare bases. Share a key.</div>
         </div>
         <Btn onClick={() => setPhase("handoff-alice")} border={C.borderBright}>Begin</Btn>
       </div>
@@ -307,33 +320,32 @@ export default function BB84Game() {
     content = <Handoff who="Alice" accent={C.alice} btnBg={C.aliceDark} onReady={() => setPhase("alice-play")} />;
   } else if (phase === "alice-play") {
     content = (
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "24px 24px", gap: 20 }}>
+      <div style={{ height: "100%", display: "flex", flexDirection: "column", padding: "clamp(16px, 4vh, 28px) clamp(16px, 5vw, 32px)", gap: "clamp(12px, 2.5vh, 22px)" }}>
         <Dots total={N} current={round} />
         <Caption color={C.alice}>Alice · photon {round + 1}</Caption>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(10, 1fr)", alignItems: "center", justifyItems: "center", gap: 2, minHeight: 32 }}>
-          {alice.map((a, i) => <ArrowGlyph key={i} angle={a.angle} color={a.color} size={22} />)}
+          {alice.map((a, i) => <ArrowGlyph key={i} angle={a.angle} color={a.color} size={ICON_SM} />)}
         </div>
 
-        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+        <div style={{ height: "clamp(120px, 22vh, 260px)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
           <Beam pulse={pulse} color={C.alice} reverse />
           {lastAlicePol && (
             <div
-              key={pulse}
               style={{
                 position: "absolute",
                 top: "50%",
                 left: "50%",
-                marginTop: -23,
-                marginLeft: -23,
-                animation: "flash 0.7s ease-out forwards",
+                transform: "translate(-50%, -50%)",
               }}
             >
-              <ArrowGlyph angle={lastAlicePol.angle} color={lastAlicePol.color} size={46} />
+              <div key={pulse} style={{ animation: "flash 0.7s ease-out forwards" }}>
+                <ArrowGlyph angle={lastAlicePol.angle} color={lastAlicePol.color} size={ICON_LG} />
+              </div>
             </div>
           )}
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "clamp(8px, 2vw, 16px)" }}>
           {POL.map((p) => (
             <button
               key={p.id}
@@ -341,12 +353,12 @@ export default function BB84Game() {
               className="tapBtn"
               style={{ aspectRatio: "1", borderRadius: 18, background: C.panel, border: `1px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "center" }}
             >
-              <ArrowGlyph angle={p.angle} color={p.color} />
+              <ArrowGlyph angle={p.angle} color={p.color} size={ICON_LG} />
             </button>
           ))}
         </div>
         <Btn onClick={() => pickAlice(rand(POL))} border={C.borderBright} ghost>
-          <Shuffle size={16} /> random
+          <Shuffle size={ICON_TINY} /> random
         </Btn>
       </div>
     );
@@ -354,38 +366,37 @@ export default function BB84Game() {
     content = <Handoff who="Bob" accent={C.bob} btnBg={C.bobDark} onReady={() => setPhase("bob-play")} />;
   } else if (phase === "bob-play") {
     content = (
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "24px 24px", gap: 20 }}>
+      <div style={{ height: "100%", display: "flex", flexDirection: "column", padding: "clamp(16px, 4vh, 28px) clamp(16px, 5vw, 32px)", gap: "clamp(12px, 2.5vh, 22px)" }}>
         <Dots total={N} current={round} />
         <Caption color={C.bob}>Bob · photon {round + 1}</Caption>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(10, 1fr)", alignItems: "center", justifyItems: "center", gap: 2, minHeight: 32 }}>
           {bob.map((b, i) => (
-            <div key={i} style={{ width: 24, height: 24, borderRadius: 999, background: C.panel, border: `1px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "center", color: C.white, fontFamily: "monospace", fontSize: 12 }}>
+            <div key={i} style={{ width: ICON_SM, height: ICON_SM, borderRadius: 999, background: C.panel, border: `1px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "center", color: C.white, fontFamily: "monospace", fontSize: FS_MD }}>
               {b.bit}
             </div>
           ))}
         </div>
 
-        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+        <div style={{ height: "clamp(120px, 22vh, 260px)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
           <Beam pulse={pulse} color={C.bob} />
           {lastBobBasis && (
             <div
-              key={pulse}
               style={{
                 position: "absolute",
                 top: "50%",
                 left: "50%",
-                marginTop: -22,
-                marginLeft: -22,
-                animation: "flash 0.7s ease-out forwards",
+                transform: "translate(-50%, -50%)",
               }}
             >
-              <BasisGlyph basis={lastBobBasis} size={44} active />
+              <div key={pulse} style={{ animation: "flash 0.7s ease-out forwards" }}>
+                <BasisGlyph basis={lastBobBasis} size={ICON_LG} active />
+              </div>
             </div>
           )}
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "clamp(10px, 3vw, 20px)" }}>
           {["+", "x"].map((b) => (
             <button
               key={b}
@@ -393,12 +404,12 @@ export default function BB84Game() {
               className="tapBtn"
               style={{ aspectRatio: "1", borderRadius: 18, background: C.panel, border: `1px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "center" }}
             >
-              <BasisGlyph basis={b} active />
+              <BasisGlyph basis={b} active size={ICON_LG} />
             </button>
           ))}
         </div>
         <Btn onClick={() => pickBob(rand(["+", "x"]))} border={C.borderBright} ghost>
-          <Shuffle size={16} /> random
+          <Shuffle size={ICON_TINY} /> random
         </Btn>
       </div>
     );
@@ -406,9 +417,9 @@ export default function BB84Game() {
     content = (
       <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "28px 24px", gap: 22 }}>
         <div>
-          <div style={{ color: C.alice, fontSize: 12, marginBottom: 6, textAlign: "center" }}>Alice sent</div>
+          <div style={{ color: C.alice, fontSize: FS_XS, marginBottom: 6, textAlign: "center" }}>Alice sent</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(10, 1fr)", alignItems: "center", justifyItems: "center", gap: 2 }}>
-            {alice.map((a, i) => <BasisGlyph key={i} basis={a.basis} size={26} active />)}
+            {alice.map((a, i) => <BasisGlyph key={i} basis={a.basis} size={ICON_MD} active />)}
           </div>
         </div>
 
@@ -416,9 +427,9 @@ export default function BB84Game() {
 
         <div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(10, 1fr)", alignItems: "center", justifyItems: "center", gap: 2 }}>
-            {bob.map((b, i) => <BasisGlyph key={i} basis={b.basis} size={26} active />)}
+            {bob.map((b, i) => <BasisGlyph key={i} basis={b.basis} size={ICON_MD} active />)}
           </div>
-          <div style={{ color: C.bob, fontSize: 12, marginTop: 6, textAlign: "center" }}>Bob picked</div>
+          <div style={{ color: C.bob, fontSize: FS_XS, marginTop: 6, textAlign: "center" }}>Bob picked</div>
         </div>
       </div>
     );
@@ -428,8 +439,8 @@ export default function BB84Game() {
         <Caption>Sifting the key</Caption>
         {eveMode && (
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-            <EyeOff size={15} color={C.eve} />
-            <span style={{ fontSize: 12, color: C.eve, fontWeight: 600 }}>Eve was listening in</span>
+            <EyeOff size={ICON_XS} color={C.eve} />
+            <span style={{ fontSize: FS_XS, color: C.eve, fontWeight: 600 }}>Eve was listening in</span>
           </div>
         )}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(10, 1fr)", gap: 3 }}>
@@ -439,13 +450,13 @@ export default function BB84Game() {
               const tampered = eveMode && b.match && !b.agree;
               return (
                 <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-                  <ArrowGlyph angle={a.angle} color={a.color} size={24} />
+                  <ArrowGlyph angle={a.angle} color={a.color} size={ICON_XS} />
                   {eveMode && b.eve && (
                     <div style={{ background: "rgba(251,106,106,0.28)", borderRadius: 8, padding: 2, lineHeight: 0 }}>
-                      <BasisGlyph basis={b.eve.basis} size={18} active />
+                      <BasisGlyph basis={b.eve.basis} size={ICON_XS} active />
                     </div>
                   )}
-                  <BasisGlyph basis={b.basis} size={22} active />
+                  <BasisGlyph basis={b.basis} size={ICON_XS} active />
                   <div
                     style={{
                       display: "flex",
@@ -458,15 +469,15 @@ export default function BB84Game() {
                     }}
                   >
                     {!b.match ? (
-                      <X size={13} color={mismatchRed ? "#F87171" : C.slate} style={{ transition: "color .4s ease" }} />
+                      <X size={ICON_TINY} color={mismatchRed ? "#F87171" : C.slate} style={{ transition: "color .4s ease" }} />
                     ) : tampered ? (
-                      <AlertTriangle size={13} color={C.eve} />
+                      <AlertTriangle size={ICON_TINY} color={C.eve} />
                     ) : (
-                      <Check size={13} color={C.emerald} />
+                      <Check size={ICON_TINY} color={C.emerald} />
                     )}
                     <div
                       style={{
-                        fontSize: 11,
+                        fontSize: FS_XS,
                         fontFamily: "monospace",
                         transition: "color .4s ease",
                         color: !b.match ? (mismatchRed ? "#F87171" : C.white40) : tampered ? C.eve : C.emerald,
@@ -480,8 +491,8 @@ export default function BB84Game() {
             })}
         </div>
         <div style={{ borderRadius: 18, background: C.panel, border: `1px solid ${C.border}`, padding: 16, display: "flex", alignItems: "center", justifyContent: "center", gap: 12, minHeight: 58 }}>
-          <KeyRound size={20} color={C.key} />
-          <div style={{ fontFamily: "monospace", fontSize: 18, letterSpacing: "0.3em", color: C.key, display: "flex" }}>
+          <KeyRound size={ICON_MD} color={C.key} />
+          <div style={{ fontFamily: "monospace", fontSize: FS_LG, letterSpacing: "0.3em", color: C.key, display: "flex" }}>
             {siftedKey.length === 0
               ? "—"
               : siftedKey.slice(0, keyRevealCount).map((bit, i) => (
@@ -496,12 +507,12 @@ export default function BB84Game() {
           className="tapBtn"
           style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, margin: "0 auto", background: "transparent", border: "none", color: C.white60 }}
         >
-          <HelpCircle size={15} color={C.white60} />
-          <span style={{ fontSize: 12 }}>why?</span>
+          <HelpCircle size={ICON_XS} color={C.white60} />
+          <span style={{ fontSize: FS_XS }}>why?</span>
         </button>
 
         {showWhy && (
-          <div style={{ borderRadius: 14, background: C.panel, border: `1px solid ${C.border}`, padding: "12px 14px", fontSize: 12, lineHeight: 1.5, color: C.white80 }}>
+          <div style={{ borderRadius: 14, background: C.panel, border: `1px solid ${C.border}`, padding: "12px 14px", fontSize: FS_XS, lineHeight: 1.5, color: C.white80 }}>
             Alice and Bob each announce, out loud, only which <b style={{ color: C.white }}>basis</b> they used per photon — never the bit itself. Where their bases match, they both already hold the same bit, so it's kept. Where bases differ, the bit was a coin flip and is thrown away.
             <br /><br />
             Since Bob guesses one of two bases at random, on average only <b style={{ color: C.white }}>50%</b> of Alice's sent photons survive into the final key.
@@ -513,14 +524,14 @@ export default function BB84Game() {
                 </>
               ) : (
                 <>
-                  Statistically, when <span style={{ color: C.eve }}>Eve</span> is listening Bob's % correct goes down to <b style={{ color: C.eve }}>25%</b>.
+                  Statistically, when <span style={{ color: C.eve }}>Eve</span> is listening Bob's % correct goes down to <b style={{ color: C.eve }}>38%</b>.
                 </>
               )
             ) : (
               <>
                 Your running average so far: <b style={{ color: C.key }}>{runningAvgPct}%</b> ({historyRatios.length} game{historyRatios.length === 1 ? "" : "s"} played)
                 {currentCorrectPct <= 30 && (
-                  <div style={{ marginTop: 8, fontSize: 11, color: C.white60, fontStyle: "italic" }}>
+                  <div style={{ marginTop: 8, fontSize: FS_XS, color: C.white60, fontStyle: "italic" }}>
                     *Frankly, your key is too short and Alice wouldn't let this fly in real life, but for the sake of the exercise let's just pretend you hit 50% and move on, okay?
                   </div>
                 )}
@@ -539,11 +550,11 @@ export default function BB84Game() {
   } else if (phase === "final" && eveMode) {
     content = (
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 22, padding: "0 32px", textAlign: "center" }}>
-        <AlertTriangle size={44} color={C.eve} />
-        <div style={{ fontSize: 24, fontWeight: 800, color: C.eve, fontFamily: "Space Grotesk, sans-serif" }}>
+        <AlertTriangle size={ICON_LG} color={C.eve} />
+        <div style={{ fontSize: FS_LG, fontWeight: 800, color: C.eve, fontFamily: "Space Grotesk, sans-serif" }}>
           Eavesdropper detected
         </div>
-        <div style={{ fontSize: 13, color: C.white80, lineHeight: 1.6 }}>
+        <div style={{ fontSize: FS_SM, color: C.white80, lineHeight: 1.6 }}>
           Too many bits disagreed on matched-basis rounds.<br />This channel isn't safe.<br />Key discarded.
         </div>
         <Btn onClick={reset} bg={C.panelDark} border={C.eve}>Start again</Btn>
@@ -552,18 +563,18 @@ export default function BB84Game() {
   } else if (phase === "final") {
     content = (
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 28, padding: "0 32px", textAlign: "center" }}>
-        <KeyRound size={30} color={C.key} />
-        <div style={{ fontFamily: "monospace", fontSize: 26, letterSpacing: "0.35em", color: C.key }}>{siftedKey.join("") || "—"}</div>
-        <div style={{ fontSize: 10, color: C.white60, textTransform: "uppercase", letterSpacing: "0.15em" }}>{siftedKey.length} shared bits</div>
+        <KeyRound size={ICON_MD} color={C.key} />
+        <div style={{ fontFamily: "monospace", fontSize: FS_XL, letterSpacing: "0.35em", color: C.key }}>{siftedKey.join("") || "—"}</div>
+        <div style={{ fontSize: FS_XS, color: C.white60, textTransform: "uppercase", letterSpacing: "0.15em" }}>{siftedKey.length} shared bits</div>
 
         <Btn onClick={() => setRevealed((r) => !r)} border={C.borderBright} ghost>
-          {revealed ? <Lock size={16} color={C.emerald} /> : <Unlock size={16} color={C.bob} />}
-          <span style={{ fontSize: 14 }}>{revealed ? "sealed" : "seal message"}</span>
+          {revealed ? <Lock size={ICON_TINY} color={C.emerald} /> : <Unlock size={ICON_TINY} color={C.bob} />}
+          <span style={{ fontSize: FS_SM }}>{revealed ? "sealed" : "seal message"}</span>
         </Btn>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6 }}>
           {(revealed ? MSG_BITS : cipherGrid).map((b, i) => (
-            <div key={i} style={{ width: 24, height: 24, borderRadius: 6, transition: "background .3s", background: b ? (revealed ? C.key : C.bob) : "#1B2244" }} />
+            <div key={i} style={{ width: ICON_SM, height: ICON_SM, borderRadius: 6, transition: "background .3s", background: b ? (revealed ? C.key : C.bob) : "#1B2244" }} />
           ))}
         </div>
 
@@ -573,8 +584,10 @@ export default function BB84Game() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", width: "100%", display: "flex", justifyContent: "center", background: `radial-gradient(circle at 50% 0%, #131A38 0%, ${C.bg} 70%)`, overscrollBehavior: "none" }}>
+    <div className="appShell" style={{ width: "100%", display: "flex", justifyContent: "center", background: `radial-gradient(circle at 50% 0%, #131A38 0%, ${C.bg} 70%)`, overscrollBehavior: "none" }}>
       <style>{`
+        html, body, #root { height: 100%; margin: 0; }
+        .appShell { height: 100vh; height: 100dvh; overflow-y: auto; }
         @keyframes travel {
           0% { top: 0%; opacity: 0; }
           15% { opacity: 1; }
@@ -601,8 +614,8 @@ export default function BB84Game() {
       <div
         style={{
           width: "100%",
-          maxWidth: 480,
-          minHeight: "100vh",
+          maxWidth: "clamp(380px, 90vw, 640px)",
+          minHeight: "100%",
           display: "flex",
           flexDirection: "column",
           position: "relative",
